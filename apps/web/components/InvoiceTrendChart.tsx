@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -41,9 +41,11 @@ const lineData = {
     {
       label: "Invoice Count",
       data: [12, 18, 10, 15, 20, 25, 22, 30, 28, 35, 40, 47],
-      borderColor: "#2563eb",
-      backgroundColor: "rgba(37,99,235,0.3)",
-      tension: 0.35,
+      borderColor: "#1B1464",
+      backgroundColor: "rgba(37,99,235,0)",
+      tension: 0.4,
+      pointRadius: 0, // ✅ removes dots
+      pointHoverRadius: 0, // ✅ removes hover dots
       yAxisID: "y1",
     },
     {
@@ -51,10 +53,12 @@ const lineData = {
       data: [
         1200, 1800, 900, 1500, 2200, 3300, 3000, 4200, 3800, 5600, 7200, 8679,
       ],
-      borderColor: "#059669",
-      backgroundColor: "rgba(5,150,105,0.3)",
-      borderDash: [6, 4],
-      tension: 0.35,
+      borderColor: "#1B146442",
+      backgroundColor: "rgba(5,150,105,0)",
+      borderDash: [4, 0],
+      tension: 0.4,
+      pointRadius: 0, // ✅ removes dots
+      pointHoverRadius: 0, // ✅ removes hover dots
       yAxisID: "y2",
     },
   ],
@@ -62,7 +66,10 @@ const lineData = {
 
 const lineOptions = {
   responsive: true,
-  interaction: { mode: "index", intersect: false },
+  interaction: {
+    mode: "index" as const,
+    intersect: false,
+  },
   scales: {
     y1: {
       type: "linear",
@@ -78,9 +85,9 @@ const lineOptions = {
   },
 };
 
-export default function InvoiceAndSpendCharts() {
+export default function InvoiceTrendCharts() {
   return (
-    <section className="grid grid-cols-2 gap-4">
+    <section>
       <div className="bg-white p-4 rounded shadow">
         <h2 className="font-medium mb-2">Invoice Volume + Value Trend</h2>
         <div className="text-sm text-gray-500 mb-3">
@@ -89,20 +96,6 @@ export default function InvoiceAndSpendCharts() {
         {/* placeholder chart area */}
         <div className="h-56">
           <Line data={lineData} options={lineOptions} />
-        </div>
-
-        {/* <div className="h-56 bg-slate-50 rounded border flex items-center justify-center text-sm text-gray-400">
-          Chart placeholder
-        </div> */}
-      </div>
-
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="font-medium mb-2">Spend by Vendor (Top 10)</h2>
-        <div className="text-sm text-gray-500 mb-3">
-          Vendor spend with cumulative percentage distribution.
-        </div>
-        <div className="h-56 bg-slate-50 rounded border flex items-center justify-center text-sm text-gray-400">
-          Bar chart placeholder
         </div>
       </div>
     </section>
