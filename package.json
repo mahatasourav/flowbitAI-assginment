@@ -1,0 +1,14 @@
+{
+  "name": "flowbit-assignment",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:vanna": "npm --prefix services/vanna run dev"
+  }
+}
