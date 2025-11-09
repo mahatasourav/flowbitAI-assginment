@@ -11,6 +11,7 @@ import ProfileImage from "@/public/assets/ProfileImage.jpg";
 import ThreeDot from "@/public/assets/ThreeDot.svg";
 import CatagoreySpend from "@/components/CatagoreySpend";
 import CashOutFlow from "@/components/CashOutFlow";
+import { apiGet } from "@/lib/api";
 
 // ...
 
@@ -22,19 +23,17 @@ type Stats = {
 };
 
 export default function Page() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [summary, setSummary] = useState<any>(null);
 
   useEffect(() => {
-    // mock data for now — we'll wire real API next
-    setStats({
-      totalSpendYTD: 12679.25,
-      totalInvoicesProcessed: 64,
-      documentsUploaded: 17,
-      avgInvoiceValue: 2455.0,
-    });
+    async function load() {
+      const data = await apiGet("/stats");
+      setSummary(data);
+    }
+    load();
   }, []);
 
-  if (!stats) return <div>Loading...</div>;
+  if (!summary) return <div>Loading...</div>;
 
   return (
     <div>
@@ -75,33 +74,55 @@ export default function Page() {
         <section className="grid grid-cols-4 gap-4  mt-2">
           <StatCardd
             title="Total Spend (YTD)"
-            value="€ 12,679.25"
-            note="+8.2% from last month"
-            graph="GreenGraph"
+            value={`€ ${formatNumber(summary.totalSpendYTD)}`}
+            note={`${summary.spendChange >= 0 ? "+" : ""}${
+              summary.spendChange
+            }% from last month`}
+            graph={summary.spendChange >= 0 ? "GreenGraph" : "RedGraph"}
           />
           <StatCardd
             title="Total Invoices Processed"
-            value="64"
-            note="+8.2% from last month"
-            graph="GreenGraph"
+            value={`${summary.totalInvoices}`}
+            note={`${summary.invoiceChange >= 0 ? "+" : ""}${
+              summary.invoiceChange
+            }% from last month`}
+            graph={summary.invoiceChange >= 0 ? "GreenGraph" : "RedGraph"}
           />
+
           <StatCardd
-            title="Documents Uploaded"
-            value="17"
-            note="-8 from last month"
-            graph="RedGraph"
+            title="Documents Uploaded (This Month)"
+            value={`${summary.totalDocuments}`}
+            note={`${
+              summary.documentsChange > 0
+                ? `+${summary.documentsChange} more`
+                : summary.documentsChange < 0
+                ? `${summary.documentsChange} less`
+                : `0 same`
+            } from last month`}
+            graph={summary.documentsChange >= 0 ? "GreenGraph" : "RedGraph"}
           />
+
           <StatCardd
-            title="Average Invoice Value "
-            value="€ 12,679.25"
-            note="+8.2% from last month"
+            title="Average Invoice Value"
+            value={`€ ${formatNumber(summary.averageInvoiceValue)}`}
+            note={`${summary.avgInvoiceChange >= 0 ? "+" : ""}${
+              summary.avgInvoiceChange
+            }% from last month`}
           />
         </section>
 
         {/* <---- Second Section --->  */}
-        <section className="grid grid-cols-2 gap-4">
-          <InvoiceTrendCharts />
-          <VendorSpendChart />
+        <section className="grid grid-cols-2 gap-4 mb-6 items-stretch">
+          <div className="h-full bg-white p-4 rounded-lg shadow">
+            <InvoiceTrendCharts />
+          </div>
+
+          <div
+            className="h-full bg-white p-4 rounded-lg
+           shadow"
+          >
+            <VendorSpendChart />
+          </div>
         </section>
 
         {/* <---- Third Section --->  */}

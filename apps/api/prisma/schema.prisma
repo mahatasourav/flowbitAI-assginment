@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Invoice {
+  id              String      @id @default(uuid())
+  invoiceNumber   String?
+  invoiceDate     DateTime?
+  deliveryDate    DateTime?
+  subTotal        Float?
+  totalTax        Float?
+  invoiceTotal    Float?
+  currencySymbol  String?
+  status          String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  vendorId        String?
+  vendor          Vendor?     @relation(fields: [vendorId], references: [id])
+
+  customerId      String?
+  customer        Customer?   @relation(fields: [customerId], references: [id])
+
+  paymentId       String?
+  payment         Payment?    @relation(fields: [paymentId], references: [id])
+
+  lineItems       LineItem[]
+
+  //  ADD THIS
+  documents       Document[]
+}
+
+
+model Vendor {
+  id               String   @id @default(uuid())
+  vendorName       String?
+  vendorAddress    String?
+  vendorTaxId      String?
+  vendorPartyNumber String?
+
+  invoices         Invoice[]
+}
+
+model Customer {
+  id               String   @id @default(uuid())
+  customerName     String?
+  customerAddress  String?
+
+  invoices         Invoice[]
+}
+
+model Payment {
+  id                 String   @id @default(uuid())
+  dueDate            DateTime?
+  paymentTerms       String?
+  bankAccountNumber  String?
+  BIC                String?
+  accountName        String?
+  netDays            Int?
+  discountPercentage Float?
+  discountDays       Int?
+  discountDueDate    DateTime?
+  discountedTotal    Float?
+
+  invoices           Invoice[]
+}
+
+model LineItem {
+  id            String   @id @default(uuid())
+  srNo          Int?
+  description   String?
+  quantity      Float?
+  unitPrice     Float?
+  totalPrice    Float?
+  Sachkonto     String?
+  BUSchluessel  String?
+  vatRate       Float?
+  vatAmount     Float?
+
+  // Relation
+  invoiceId     String?
+  invoice       Invoice? @relation(fields: [invoiceId], references: [id])
+}
+
+model Document {
+  id              String   @id @default(uuid())
+  name            String?
+  filePath        String?
+  fileSize        Int?
+  fileType        String?
+  status          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  invoiceId       String?
+  invoice         Invoice? @relation(fields: [invoiceId], references: [id])
+}
