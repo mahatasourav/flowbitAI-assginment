@@ -118,15 +118,19 @@ export default function InvoiceTrendCharts() {
         callbacks: {
           title: (tooltipItems: any) => {
             const index = tooltipItems[0].dataIndex;
-            return fullLabels[index]; // ✅ Show "Aug 2025"
+            return fullLabels[index]; // ✅ detailed month name
           },
           label: (ctx) => {
+            const y = ctx.parsed?.y ?? 0; // ✅ FIXED: prevent TS null error
+
             if (ctx.dataset.label === "Invoice Count") {
-              return `Invoices: ${ctx.parsed.y}`;
+              return `Invoices: ${y}`;
             }
+
             if (ctx.dataset.label === "Spend (€)") {
-              return `Spend: € ${ctx.parsed.y.toLocaleString()}`;
+              return `Spend: € ${y.toLocaleString()}`;
             }
+
             return "";
           },
         },
