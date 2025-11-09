@@ -48,38 +48,37 @@ router.get("/invoices", async (req, res) => {
 
     if (vendorId) filters.vendorId = vendorId as string;
     if (status) filters.status = status as string;
+
     if (minTotal || maxTotal) {
       filters.invoiceTotal = {};
       if (minTotal) filters.invoiceTotal.gte = Number(minTotal);
       if (maxTotal) filters.invoiceTotal.lte = Number(maxTotal);
     }
 
-    // Aggregate invoices by vendor
-    const vendorAgg: VendorAgg[] = await prisma.invoice.groupBy({
+    // ✅ Let Prisma infer the return type
+    const vendorAgg = await prisma.invoice.groupBy({
       by: ["vendorId"],
       where: filters,
       _count: { vendorId: true },
       _sum: { invoiceTotal: true },
     });
 
-    // Fetch vendor names
     const vendorNames = await prisma.vendor.findMany({
-      where: {
-        id: { in: vendorAgg.map((v: VendorAgg) => v.vendorId).filter(Boolean) as string[] },
-      },
-      select: { id: true, vendorName: true },
-    });
+  where: {
+    id: { in: vendorAgg.map((v: any) => v.vendorId).filter(Boolean) as string[] },
+  },
+  select: { id: true, vendorName: true },
+});
 
-    const vendorNameMap: Record<string, string> = Object.fromEntries(
-      vendorNames.map((v: { id: string; vendorName: string | null }) => [v.id, v.vendorName ?? "Unknown Vendor"])
-    );
+const vendorNameMap: Record<string, string> = Object.fromEntries(
+  vendorNames.map((v: any) => [v.id, v.vendorName || "Unknown Vendor"])
+);
 
-    // Map to final vendor summary
-    const vendorSummary: VendorSummary[] = vendorAgg.map((v: VendorAgg) => ({
-      vendorName: vendorNameMap[v.vendorId ?? ""] || "Unknown Vendor",
-      invoiceCount: v._count.vendorId,
-      netValue: v._sum.invoiceTotal ?? 0,
-    }));
+   const vendorSummary = vendorAgg.map((v: any) => ({
+  vendorName: vendorNameMap[v.vendorId || ""] || "Unknown Vendor",
+  invoiceCount: v._count.vendorId,
+  netValue: v._sum.invoiceTotal || 0,
+}));
 
     return res.json(vendorSummary);
   } catch (err) {
@@ -87,5 +86,6 @@ router.get("/invoices", async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch vendor summary" });
   }
 });
+
 
 export default router;
