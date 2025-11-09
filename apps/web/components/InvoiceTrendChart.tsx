@@ -1,5 +1,6 @@
-// apps/web/components/InvoiceAndSpendCharts.tsx
 "use client";
+
+import { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,7 +11,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Line, Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
+import { apiGet } from "@/lib/api";
+import type { ChartOptions } from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -22,80 +25,139 @@ ChartJS.register(
   Legend
 );
 
-const lineData = {
-  labels: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ],
-  datasets: [
-    {
-      label: "Invoice Count",
-      data: [12, 18, 10, 15, 20, 25, 22, 30, 28, 35, 40, 47],
-      borderColor: "#1B1464",
-      backgroundColor: "rgba(37,99,235,0)",
-      tension: 0.4,
-      pointRadius: 0, // ✅ removes dots
-      pointHoverRadius: 0, // ✅ removes hover dots
-      yAxisID: "y1",
-    },
-    {
-      label: "Spend (€)",
-      data: [
-        1200, 1800, 900, 1500, 2200, 3300, 3000, 4200, 3800, 5600, 7200, 8679,
-      ],
-      borderColor: "#1B146442",
-      backgroundColor: "rgba(5,150,105,0)",
-      borderDash: [4, 0],
-      tension: 0.4,
-      pointRadius: 0, // ✅ removes dots
-      pointHoverRadius: 0, // ✅ removes hover dots
-      yAxisID: "y2",
-    },
-  ],
-};
-
-const lineOptions = {
-  responsive: true,
-  interaction: {
-    mode: "index" as const,
-    intersect: false,
-  },
-  scales: {
-    y1: {
-      type: "linear",
-      position: "left",
-      title: { display: true, text: "Invoices" },
-    },
-    y2: {
-      type: "linear",
-      position: "right",
-      title: { display: true, text: "Spend (€)" },
-      grid: { drawOnChartArea: false },
-    },
-  },
-};
-
 export default function InvoiceTrendCharts() {
+  const [labels, setLabels] = useState<string[]>([]); // short (Aug)
+  const [fullLabels, setFullLabels] = useState<string[]>([]); // full (Aug 2025)
+  const [invoiceCounts, setInvoiceCounts] = useState<number[]>([]);
+  const [spends, setSpends] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await apiGet("/invoice-trend");
+
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+
+        // short labels for X-axis
+        setLabels(
+          data.map((d: any) => {
+            const [year, month] = d.month.split("-");
+            return monthNames[Number(month) - 1];
+          })
+        );
+
+        // full labels for tooltip
+        setFullLabels(
+          data.map((d: any) => {
+            const [year, month] = d.month.split("-");
+            return `${monthNames[Number(month) - 1]} ${year}`;
+          })
+        );
+
+        setInvoiceCounts(data.map((d: any) => d.invoiceCount));
+        setSpends(data.map((d: any) => d.totalSpend));
+      } catch (e) {
+        console.error("Failed loading invoice trend:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        label: "Invoice Count",
+        data: invoiceCounts,
+        borderColor: "#1B1464",
+        backgroundColor: "rgba(37,99,235,0)",
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        yAxisID: "y1",
+      },
+      {
+        label: "Spend (€)",
+        data: spends,
+        borderColor: "#1B146442",
+        backgroundColor: "rgba(5,150,105,0)",
+        borderDash: [4, 0],
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        yAxisID: "y2",
+      },
+    ],
+  };
+
+  const lineOptions: ChartOptions<"line"> = {
+    responsive: true,
+    interaction: { mode: "index", intersect: false },
+
+    plugins: {
+      tooltip: {
+        callbacks: {
+          title: (tooltipItems: any) => {
+            const index = tooltipItems[0].dataIndex;
+            return fullLabels[index]; // ✅ Show "Aug 2025"
+          },
+          label: (ctx) => {
+            if (ctx.dataset.label === "Invoice Count") {
+              return `Invoices: ${ctx.parsed.y}`;
+            }
+            if (ctx.dataset.label === "Spend (€)") {
+              return `Spend: € ${ctx.parsed.y.toLocaleString()}`;
+            }
+            return "";
+          },
+        },
+      },
+    },
+
+    scales: {
+      y1: {
+        type: "linear",
+        position: "left",
+        title: { display: true, text: "Invoices" },
+      },
+      y2: {
+        type: "linear",
+        position: "right",
+        title: { display: true, text: "Spend (€)" },
+        grid: { drawOnChartArea: false },
+      },
+    },
+  };
+
   return (
     <section>
-      <div className="bg-white p-4 rounded shadow">
+      <div className=" h-full flex flex-col">
         <h2 className="font-medium mb-2">Invoice Volume + Value Trend</h2>
         <div className="text-sm text-gray-500 mb-3">
-          Invoice count and total spend over 12 months.
+          Invoice count and total spend over time.
         </div>
-        {/* placeholder chart area */}
+
         <div className="h-56">
-          <Line data={lineData} options={lineOptions} />
+          <Line data={chartData} options={lineOptions} />
         </div>
       </div>
     </section>

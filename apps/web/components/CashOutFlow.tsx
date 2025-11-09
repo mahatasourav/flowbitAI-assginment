@@ -1,6 +1,6 @@
-// apps/web/components/CashOutflowForecast.tsx
 "use client";
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,45 +10,52 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { apiGet } from "@/lib/api";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-export default function CashOutFlow({
-  dataOverride,
-}: {
-  // optional override for real API data: { labels: string[], values: number[] }
-  dataOverride?: { labels: string[]; values: number[] };
-}) {
-  // default/mock values (in euros)
-  const labels = dataOverride?.labels ?? [
-    "0 - 7 days",
-    "8 - 30 days",
-    "31 - 60 days",
-    "60+ days",
-  ];
+export default function CashOutFlow() {
+  const [labels, setLabels] = useState<string[]>([]);
+  const [values, setValues] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const values = dataOverride?.values ?? [45000, 28000, 7000, 60000];
+  useEffect(() => {
+    async function fetchCashOutflow() {
+      try {
+        const data = await apiGet("/cash-outflow");
 
-  // pick a max for the background columns (slightly above max value)
-  const maxVal = Math.max(...values) * 1.15;
-  const data = {
+        // ✅ dynamic: uses backend's keys
+        setLabels(data.map((d: any) => d.range));
+        setValues(data.map((d: any) => d.value));
+      } catch (err) {
+        console.error("Cash outflow fetch failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCashOutflow();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+
+  const maxVal = Math.max(...values, 1) * 1.15;
+
+  const chartData = {
     labels,
     datasets: [
-      // background column (light)
       {
         label: "bucket-max",
         data: labels.map(() => Math.round(maxVal)),
-        backgroundColor: "rgba(15, 23, 42, 0.06)", // very light column
+        backgroundColor: "rgba(15, 23, 42, 0.06)",
         barPercentage: 0.9,
         categoryPercentage: 1.0,
-        // make background bars thin by using large barThickness + lower zIndex (drawn first)
         maxBarThickness: 80,
       },
-      // actual outflow (dark)
       {
         label: "outflow",
         data: values,
-        backgroundColor: "#1e1b5f", // dark primary color
+        backgroundColor: "#1e1b5f",
         barPercentage: 0.6,
         categoryPercentage: 1.0,
         maxBarThickness: 60,
@@ -64,10 +71,7 @@ export default function CashOutFlow({
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (ctx: any) => {
-            const v = ctx.parsed.y ?? ctx.parsed;
-            return `€ ${Number(v).toLocaleString()}`;
-          },
+          label: (ctx: any) => `€ ${ctx.parsed.y.toLocaleString()}`,
         },
       },
     },
@@ -79,11 +83,8 @@ export default function CashOutFlow({
       y: {
         beginAtZero: true,
         ticks: {
-          callback: function (val: any) {
-            const n = Number(val);
-            if (Math.abs(n) >= 1000) return `€ ${n / 1000}k`;
-            return `€ ${n}`;
-          },
+          callback: (val: any) =>
+            Math.abs(val) >= 1000 ? `€ ${val / 1000}k` : `€ ${val}`,
           color: "#475569",
           font: { size: 12 },
         },
@@ -93,15 +94,14 @@ export default function CashOutFlow({
   };
 
   return (
-    <div className="bg-white p-4 rounded shadow ">
+    <div className="bg-white p-4 rounded-lg shadow">
       <h3 className="text-lg font-medium">Cash Outflow Forecast</h3>
-
       <p className="text-sm text-gray-500 mb-3">
         Expected payment obligations grouped by due date ranges.
       </p>
 
       <div className="h-80">
-        <Bar data={data} options={options} />
+        <Bar data={chartData} options={options} />
       </div>
     </div>
   );
