@@ -9,6 +9,7 @@ import Departments from "@/public/assets/Departments.svg";
 import Users from "@/public/assets/Users.svg";
 import Settings from "@/public/assets/Settings.svg";
 import FlowbitAIlogo from "@/public/assets/FlowbitAilogo.svg";
+import ChatWithAI from "@/public/assets/ChatWithAi.png";
 
 export default function Sidebar() {
   return (
@@ -101,6 +102,14 @@ export default function Sidebar() {
             >
               <Image src={Settings} alt="homeicon" width={20} height={20} />
               Settings
+            </Link>
+            <Link
+              href="/chat-with-data"
+              className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm
+                 text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              <Image src={ChatWithAI} alt="homeicon" width={20} height={20} />
+              Chat with Data
             </Link>
           </nav>
         </div>
