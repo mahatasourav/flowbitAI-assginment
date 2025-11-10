@@ -1,44 +1,47 @@
 🚀 Flowbit AI Assignment – Full Stack Invoice Analytics Dashboard
 
-A fully functional full-stack invoice analytics platform built as part of the Flowbit AI assignment.
+This project is a complete, end-to-end invoice analytics platform built for the Flowbit AI assignment.
+I designed and implemented the frontend, backend, database, and deployment — everything needed to make the system production-ready.
 
-This project includes:
-
-✅ Next.js 14 (App Router) production-ready frontend
-
-✅ Express + TypeScript + Prisma backend
-
-✅ PostgreSQL database hosted on Render
-
-✅ Automated Prisma migrations & seeding
-
-✅ Real analytics: Spend, Forecast, Vendor ranking, Category insights
-
-✅ Fully deployed on Vercel (frontend) and Render (backend)
-
-🔗 Live URLs
-Service	URL
+🌍 Live Demo
+Service	Link
 Frontend (Vercel)	https://flowbit-ai-assginment-web-c4m4.vercel.app
 
 Backend (Render)	https://flowbitai-assginment.onrender.com
 
-API Health	https://flowbitai-assginment.onrender.com/stats
-📌 Features
-✅ Frontend (Next.js 14)
+API Health Check	https://flowbitai-assginment.onrender.com/stats
+✅ What This Project Includes
+🖥️ Frontend — Next.js 14 (App Router)
 
-Modern dashboard built using React, TailwindCSS, Recharts, ShadCN UI
+A clean, modern, responsive dashboard built with:
 
-📊 Dynamic Charts
+TailwindCSS
 
-Invoice Trends
+Recharts
 
-Spend by Vendor (Pareto)
+ShadCN UI
 
-Spend by Category
+📊 Dashboard Capabilities
 
-Cash Outflow Forecast (0–7, 8–30, 31–60, 60+ days)
+The UI shows several key analytics:
 
-📈 Summary KPIs
+Invoice trends over time
+
+Spend by vendor (Pareto analysis)
+
+Spend by category
+
+Cash outflow forecast:
+
+0–7 days
+
+8–30 days
+
+31–60 days
+
+60+ days
+
+📌 KPI Cards
 
 Total Spend (YTD)
 
@@ -48,31 +51,24 @@ Documents This Month
 
 Average Invoice Value
 
-Other frontend features:
+Frontend is fully API-driven and uses NEXT_PUBLIC_API_BASE for environment-based config.
 
-Fully responsive layout
+⚙️ Backend — Express + TypeScript + Prisma
 
-Env-based API config using NEXT_PUBLIC_API_BASE
+The backend is fully typed, fast, and structured with clean routes.
+Prisma manages all DB communication, and data parsing is designed to handle messy or inconsistent invoice formats.
 
-✅ Backend (Express + TypeScript)
+🔗 API Endpoints
+Endpoint	Purpose
+/stats	Dashboard summary (KPIs)
+/invoice-trend	Monthly invoice count + spend
+/spend-by-vendor	Vendor ranking with total spend
+/outflow-forecast	Bucketized payment forecast
+/spend-by-category	Category-level spend
+/invoices	Complete invoice listing
+🗄️ Database — PostgreSQL (Render) + Prisma
 
-Fully typed Express server
-
-Prisma ORM with PostgreSQL
-
-Robust parsing for real invoice dataset (LLM variations handled)
-
-📡 REST API Endpoints
-Endpoint	Description
-/stats	Dashboard KPIs
-/invoice-trend	Monthly invoice & spend
-/spend-by-vendor	Vendor-wise spend ranking
-/outflow-forecast	Bucketized forecast (0–7, 8–30, 31–60, 60+)
-/spend-by-category	Category aggregation
-/invoices	Invoice list with vendor mapping
-✅ Database (Prisma + PostgreSQL)
-
-Includes relational tables:
+The schema is normalized and includes:
 
 Vendor
 
@@ -86,31 +82,30 @@ LineItem
 
 Document
 
-✅ 3 migrations
-✅ Hosted on Render PostgreSQL
+There are 3 migrations, and the database runs on Render’s managed PostgreSQL.
 
-✅ Seeding System
+🌱 Automated Seeding
 
-Custom TypeScript seed script that parses Analytics_Test_Data.json and inserts:
+A TypeScript-based seed script imports data from Analytics_Test_Data.json and generates:
 
 Vendors
 
 Customers
 
-Payments
-
 Invoices
+
+Payments
 
 Line items
 
 Documents
 
-Automatically executed during Render deployment.
+The seed process runs automatically during backend deployment — no manual steps needed.
 
 🛠️ Tech Stack
 Frontend
 
-Next.js 14 (App Router)
+Next.js 14
 
 TypeScript
 
@@ -122,9 +117,7 @@ ShadCN UI
 
 Backend
 
-Node.js
-
-Express
+Node.js + Express
 
 TypeScript
 
@@ -132,115 +125,116 @@ Prisma ORM
 
 Zod (optional validation)
 
-Infra
+Infrastructure
 
-Vercel (frontend)
+Vercel (Frontend)
 
-Render (backend + database)
+Render (Backend + DB)
 
-Managed PostgreSQL
+Render PostgreSQL
 
 📁 Project Structure
 flowbitAI-assignment/
 │
 ├── apps/
 │   ├── web/        # Next.js frontend
-│   └── api/        # Express + Prisma backend
+│   └── api/        # Express backend
 │
-└── prisma/         # Prisma schema & migrations
+└── prisma/         # Prisma schema + migrations
 
-Backend Structure
+
+Backend layout:
+
 apps/api/
 ├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
 ├── src/
 │   ├── prisma/seed.ts
 │   ├── routes/
-│   ├── server.ts
-│   └── data/Analytics_Test_Data.json
+│   └── server.ts
 └── dist/
 
-⚙️ Environment Variables
-✅ Frontend (apps/web/.env)
+🔧 Environment Variables
+Frontend (apps/web/.env)
 NEXT_PUBLIC_API_BASE=https://flowbitai-assginment.onrender.com
 
-✅ Backend (apps/api/.env)
+Backend (apps/api/.env)
 DATABASE_URL=postgresql://<user>:<password>@<host>/<db>
 PORT=4000
 NODE_ENV=production
 
-▶️ Local Development
-Start Backend
+▶️ Running Locally
+Backend
 cd apps/api
 npm install
 npx prisma generate
 npm run dev
 
-Start Frontend
+Frontend
 cd apps/web
 npm install
 npm run dev
 
 
-Local URLs:
+Local access:
 
 Frontend → http://localhost:3000
 
 Backend → http://localhost:4000
 
 🚀 Deployment
-✅ Backend (Render)
+Backend (Render)
 
-Build Command:
+Build
 
 npm install
 npx prisma generate
 npm run build
 
 
-Start Command:
+Start
 
 npm start
 
-✅ Frontend (Vercel)
+Frontend (Vercel)
 
-Auto-detects Next.js
-Add env variable:
+Just add the env variable:
 
 NEXT_PUBLIC_API_BASE=https://flowbitai-assginment.onrender.com
 
-✅ Screenshots
 
-(Add these in final submission)
+and deploy — Vercel handles the rest.
 
-Dashboard
+📸 Screenshots
 
-Charts
+(Add these in your submission)
 
-Vendor table
+Dashboard UI
 
-/stats API response
+Analytics charts
 
-✅ Assignment Summary
+Vendor spend table
 
-All requirements ✅ Completed:
+/stats API JSON response
 
-✅ Pixel-perfect UI
+✅ Final Status
 
-✅ Real backend analytics
+All assignment requirements are fully completed:
 
-✅ Fully functional charts
+✅ Fully functional dashboard
 
-✅ Normalized database
+✅ Real analytics with live data
 
-✅ Seeded dataset
+✅ Normalized PostgreSQL database
+
+✅ Automated seeding + migrations
+
+✅ Clean API architecture
 
 ✅ Fully deployed (Vercel + Render)
 
-✅ Production-ready codebase
+✅ Production-grade codebase
 
-📝 Author
+✍️ Author
 
 Sourav Mahata
 Full Stack Developer
