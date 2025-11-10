@@ -8,54 +8,45 @@ datasource db {
 }
 
 model Invoice {
-  id              String      @id @default(uuid())
-  invoiceNumber   String?
-  invoiceDate     DateTime?
-  deliveryDate    DateTime?
-  subTotal        Float?
-  totalTax        Float?
-  invoiceTotal    Float?
-  currencySymbol  String?
-  status          String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  vendorId        String?
-  vendor          Vendor?     @relation(fields: [vendorId], references: [id])
-
-  customerId      String?
-  customer        Customer?   @relation(fields: [customerId], references: [id])
-
-  paymentId       String?
-  payment         Payment?    @relation(fields: [paymentId], references: [id])
-
-  lineItems       LineItem[]
-
-  //  ADD THIS
-  documents       Document[]
+  id             String     @id @default(uuid())
+  invoiceDate    DateTime?
+  status         String?
+  createdAt      DateTime   @default(now())
+  currencySymbol String?
+  customerId     String?
+  deliveryDate   DateTime?
+  invoiceNumber  String?
+  invoiceTotal   Float?
+  paymentId      String?
+  subTotal       Float?
+  totalTax       Float?
+  updatedAt      DateTime   @updatedAt
+  vendorId       String?
+  documents      Document[]
+  customer       Customer?  @relation(fields: [customerId], references: [id])
+  payment        Payment?   @relation(fields: [paymentId], references: [id])
+  vendor         Vendor?    @relation(fields: [vendorId], references: [id])
+  lineItems      LineItem[]
 }
 
-
 model Vendor {
-  id               String   @id @default(uuid())
-  vendorName       String?
-  vendorAddress    String?
-  vendorTaxId      String?
+  id                String    @id @default(uuid())
+  vendorName        String?
+  vendorAddress     String?
+  vendorTaxId       String?
   vendorPartyNumber String?
-
-  invoices         Invoice[]
+  invoices          Invoice[]
 }
 
 model Customer {
-  id               String   @id @default(uuid())
-  customerName     String?
-  customerAddress  String?
-
-  invoices         Invoice[]
+  id              String    @id @default(uuid())
+  customerName    String?
+  customerAddress String?
+  invoices        Invoice[]
 }
 
 model Payment {
-  id                 String   @id @default(uuid())
+  id                 String    @id @default(uuid())
   dueDate            DateTime?
   paymentTerms       String?
   bankAccountNumber  String?
@@ -66,37 +57,33 @@ model Payment {
   discountDays       Int?
   discountDueDate    DateTime?
   discountedTotal    Float?
-
   invoices           Invoice[]
 }
 
 model LineItem {
-  id            String   @id @default(uuid())
-  srNo          Int?
-  description   String?
-  quantity      Float?
-  unitPrice     Float?
-  totalPrice    Float?
-  Sachkonto     String?
-  BUSchluessel  String?
-  vatRate       Float?
-  vatAmount     Float?
-
-  // Relation
-  invoiceId     String?
-  invoice       Invoice? @relation(fields: [invoiceId], references: [id])
+  id           String   @id @default(uuid())
+  srNo         Int?
+  description  String?
+  quantity     Float?
+  unitPrice    Float?
+  totalPrice   Float?
+  Sachkonto    String?
+  BUSchluessel String?
+  vatRate      Float?
+  vatAmount    Float?
+  invoiceId    String?
+  invoice      Invoice? @relation(fields: [invoiceId], references: [id])
 }
 
 model Document {
-  id              String   @id @default(uuid())
-  name            String?
-  filePath        String?
-  fileSize        Int?
-  fileType        String?
-  status          String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  invoiceId       String?
-  invoice         Invoice? @relation(fields: [invoiceId], references: [id])
+  id        String   @id @default(uuid())
+  name      String?
+  filePath  String?
+  fileSize  Int?
+  fileType  String?
+  status    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
 }
