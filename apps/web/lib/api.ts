@@ -1,7 +1,8 @@
-export const API_BASE = "http://localhost:4000";
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE as string;
 
 export async function apiGet(path: string) {
-  const res = await fetch(`${API_BASE}${path}`);
+  const url = `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error("API error");
   return res.json();
 }
